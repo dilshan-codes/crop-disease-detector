@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Disease Detector</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f7f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #1b4332;
+        }
+
+        header p {
+            color: #555;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 36px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        .upload-area {
+            border: 2px dashed #52b788;
+            border-radius: 12px;
+            padding: 36px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover { background: #f0fff4; }
+
+        .upload-area .icon { font-size: 2.5rem; }
+
+        .upload-area p {
+            color: #555;
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .upload-area span {
+            color: #52b788;
+            font-weight: 600;
+        }
+
+        #preview {
+            width: 100%;
+            max-height: 260px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #1b4332; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
+
+        .result {
+            margin-top: 28px;
+            display: none;
+        }
+
+        .result-header {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .disease-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1b4332;
+            margin-bottom: 4px;
+        }
+
+        .confidence-text {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .bar-bg {
+            background: #e0e0e0;
+            border-radius: 6px;
+            height: 10px;
+            margin-bottom: 24px;
+        }
+
+        .bar-fill {
+            background: #52b788;
+            height: 10px;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .top3-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .top3-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+
+        .top3-item:last-child { border-bottom: none; }
+
+        .top3-item .name { color: #333; }
+
+        .top3-item .pct {
+            font-weight: 600;
+            color: #2d6a4f;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            display: none;
+        }
+
+        .error {
+            color: #c0392b;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌿 Crop Disease Detector</h1>
+    <p>Upload a leaf image to identify the disease instantly</p>
+</header>
+
+<div class="card">
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <div class="icon">📷</div>
+        <p><span>Click to upload</span> or drag and drop</p>
+        <p>JPG, PNG supported</p>
+        <input type="file" id="fileInput" accept="image/*" hidden>
+    </div>
+
+    <img id="preview" alt="Leaf preview">
+
+    <button id="analyzeBtn" onclick="predict()" disabled>
+        Analyze Leaf
+    </button>
+
+    <div class="loader" id="loader">🔍 Analyzing leaf...</div>
+    <div class="error" id="error">Something went wrong. Make sure the API is running.</div>
+
+    <div class="result" id="result">
+        <div class="result-header">Detected Disease</div>
+        <div class="disease-name" id="diseaseName"></div>
+        <div class="confidence-text" id="confidenceText"></div>
+        <div class="bar-bg">
+            <div class="bar-fill" id="barFill"></div>
+        </div>
+
+        <div class="top3-title">Top 3 Predictions</div>
+        <div id="top3List"></div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const result = document.getElementById('result');
+    const loader = document.getElementById('loader');
+    const error = document.getElementById('error');
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+        analyzeBtn.disabled = false;
+        result.style.display = 'none';
+        error.style.display = 'none';
+    });
+
+    async function predict() {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        analyzeBtn.disabled = true;
+        loader.style.display = 'block';
+        result.style.display = 'none';
+        error.style.display = 'none';
+
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('http://localhost:8000/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!res.ok) throw new Error('API error');
+            const data = await res.json();
+
+            // Display result
+            document.getElementById('diseaseName').textContent =
+                data.prediction.replace(/_/g, ' ');
+            document.getElementById('confidenceText').textContent =
+                `Confidence: ${data.confidence}%`;
+            document.getElementById('barFill').style.width =
+                `${data.confidence}%`;
+
+            // Top 3
+            const top3Html = data.top3.map(item => `
+                <div class="top3-item">
+                    <span class="name">${item.disease.replace(/_/g, ' ')}</span>
+                    <span class="pct">${item.confidence}%</span>
+                </div>
+            `).join('');
+            document.getElementById('top3List').innerHTML = top3Html;
+
+            result.style.display = 'block';
+
+        } catch (err) {
+            error.style.display = 'block';
+        } finally {
+            loader.style.display = 'none';
+            analyzeBtn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
