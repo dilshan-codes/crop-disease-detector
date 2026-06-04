@@ -1,3 +1,12 @@
+---
+title: Crop Disease Detector
+emoji: 🌿
+colorFrom: green
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # 🌿 Crop Disease Detector
 
 A deep learning web application that classifies plant leaf diseases from images.
