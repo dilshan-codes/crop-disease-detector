@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 ### 4. Download the model
 
-Download `best_model.pth` from Google Drive and place it in the `models/` folder:
+[Download best_model.pth](https://drive.google.com/file/d/1WD09SmKPGcx0rW3lxtoQNu3sAk7HSjrn/view?usp=sharing)
 
 ```
 models/
