@@ -3,6 +3,7 @@
 A deep learning web application that classifies plant leaf diseases from images.
 Built with a CNN trained **completely from scratch** — no pretrained weights used.
 
+<img width="1919" height="1029" alt="Image" src="https://github.com/user-attachments/assets/880088c0-dc66-41cc-8ddd-38f59fd70068" />
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-orange)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)
