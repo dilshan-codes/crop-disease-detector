@@ -3,6 +3,21 @@
 A deep learning web application that classifies plant leaf diseases from images.
 Built with a CNN trained **completely from scratch** — no pretrained weights used.
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/880088c0-dc66-41cc-8ddd-38f59fd70068" width="100%">
+</p>
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="https://github.com/user-attachments/assets/8cd0e46c-1208-454f-92bd-8795febc7264" width="100%">
+    </td>
+    <td width="50%">
+      <img src="https://github.com/user-attachments/assets/4a4bc7cb-2f9f-4157-8f41-4a6b660809e0" width="100%">
+    </td>
+  </tr>
+</table>
+
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-orange)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)
@@ -81,7 +96,7 @@ pip install -r requirements.txt
 
 ### 4. Download the model
 
-Download `best_model.pth` from Google Drive and place it in the `models/` folder:
+[Download best_model.pth](https://drive.google.com/file/d/1WD09SmKPGcx0rW3lxtoQNu3sAk7HSjrn/view?usp=sharing)
 
 ```
 models/
