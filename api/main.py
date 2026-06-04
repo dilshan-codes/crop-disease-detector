@@ -1,10 +1,12 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 import io
+import os
 
 # ── Model Definition ──────────────────────────────────────────
 class CropDiseaseCNN(nn.Module):
@@ -71,7 +73,7 @@ transform = transforms.Compose([
 ])
 
 # ── App ───────────────────────────────────────────────────────
-app = FastAPI(title="Crop Disease Detector API")
+app = FastAPI(title="Crop Disease Detector")
 
 app.add_middleware(
     CORSMiddleware,
@@ -80,9 +82,10 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {"message": "Crop Disease Detector API is running"}
+    with open("ui/index.html", "r") as f:
+        return f.read()
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
